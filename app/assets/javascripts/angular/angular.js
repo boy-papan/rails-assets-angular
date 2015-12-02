@@ -6079,6 +6079,18 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           }
           break;
         case 3: /* Text Node */
+
+          // &mdash; and other unicode characters screw up angular interpolation
+          // https://github.com/angular/angular.js/pull/11796
+
+          if (msie === 11) {
+            // Workaround for #11781
+            while (node.parentNode && node.nextSibling && node.nextSibling.nodeType === 3 /* Text Node */) {
+              node.nodeValue = node.nodeValue + node.nextSibling.nodeValue;
+              node.parentNode.removeChild(node.nextSibling);
+            }
+          }
+
           addTextInterpolateDirective(directives, node.nodeValue);
           break;
         case 8: /* Comment */
